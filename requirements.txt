@@ -1,0 +1,2 @@
+pyyaml>=0.0
+click>=0.0
