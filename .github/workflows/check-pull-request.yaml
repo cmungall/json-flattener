@@ -25,7 +25,7 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install --upgrade pip
-        pip install linkml-r requirements.txt
+        pip install -r requirements.txt
 
     # Make test
     - name: Make test
