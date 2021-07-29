@@ -53,6 +53,17 @@ json-flattener will translate the aboe to CSV/TSV such as:
 
 with the ability to roundtrip back to YAML/JSON
 
+This library also allows complex fields to be directly serialized as json or yaml (the default is to append `_json` to the key). For example:
+
+|id|name|genres|creator_json|books_json|
+|---|---|---|---|---|
+|S001|Lord of the Rings|[fantasy]|{\"name\": \"JRR Tolkein\", \"from_country\": \"England\"}|[{\"id\": \"S001.1\", \"name\": \"Fellowship of the Ring\", \"summary\": \"Hobbits\", \"price\": 5.99}, {\"id\": \"S001.2\", \"name\": \"The Two Towers\", \"summary\": \"More hobbits\", \"price\": 5.99}, {\"id\": \"S001.3\", \"name\": \"Return of the King\", \"summary\": \"Yet more hobbits\", \"price\": 6.99}]|
+|S002|The Culture Series|[scifi]|{\"name\": \"Ian M Banks\", \"from_country\": \"Scotland\"}|[{\"id\": \"S002.1\", \"name\": \"Consider Phlebas\", \"price\": 5.99}, {\"id\": \"S002.2\", \"name\": \"Player of Games\", \"price\": 5.99}]|
+|S003|Book of the New Sun|[scifi, fantasy]|{\"name\": \"Gene Wolfe\", \"genres\": [\"scifi\", \"fantasy\"], \"from_country\": \"USA\"}|[{\"id\": \"S003.1\", \"name\": \"Shadow of the Torturer\"}, {\"id\": \"S003.2\", \"name\": \"Claw of the Conciliator\", \"price\": 6.99}]|
+|S004|Example with single book||{\"name\": \"Ms Writer\", \"genres\": [\"romance\"], \"from_country\": \"USA\"}|[{\"id\": \"S004.1\", \"name\": \"Blah\"}]|
+|S005|Example with no books||{\"name\": \"Mr Unproductive\", \"genres\": [\"romance\", \"scifi\", \"fantasy\"], \"from_country\": \"USA\"}||
+
+
 See
 
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRyM06peU9BkrZbXJazuMlajw5s4Vbj5f0t0TE4hj_X9Ex_EASLSUZuaWUxYIhWbOC6CtPRtxrTGWQD/embed?start=false&loop=false&delayms=60000" frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -78,7 +89,7 @@ The target denormalized format is a list of rows / a data matrix, where each cel
  * if the key value is a list of dicts/objects, then flatten each key of this inner dict into a list
      * e.g. if `books` is a list of book objects, and `name` is a key on book, then `books_name` is a list of names of each book
      * order is significant - the first element of `books_name` is matched to the first element of `books_price`, etc
- * Allow any key to be serialized as yaml/json/pickle if desired
+ * Allow any key to be serialized as yaml/json/pickle if configured
 
 ## Command line usage (TODO)
 
