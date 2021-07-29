@@ -1,0 +1,23 @@
+env/
+py*/
+__pycache__
+*.pyc
+*.egg-info
+tests/logs/*.log
+build
+dist
+
+/build
+/dist
+
+# local IDE files
+venv
+.idea/
+
+# test directories
+tests/logs
+docker_test_*
+target
+
+# the stray output file from a test-merge.yaml driven test
+merged-kg_stats.yaml
