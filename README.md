@@ -95,7 +95,7 @@ The target denormalized format is a list of rows / a data matrix, where each cel
 
 ## Usage from Python
 
-
+Documentation coming soon: see test folder for now
 
 
 ## use within LinkML
@@ -114,3 +114,4 @@ The target denormalized format is a list of rows / a data matrix, where each cel
  https://github.com/wnameless/json-flattener
 
 ### Python
+
