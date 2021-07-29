@@ -9,8 +9,8 @@ REQUIRES_PYTHON = '>=3.7.0'
 VERSION = '0.1.0'
 LICENSE = 'BSD'
 
-with open("requirements.txt", "r") as FH:
-    REQUIREMENTS = FH.readlines()
+#with open("requirements.txt", "r") as FH:
+#    REQUIREMENTS = FH.readlines()
 
 EXTRAS = {}
 
@@ -27,14 +27,15 @@ setup(
     license=LICENSE,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'json_flattener': ["config.yml"]},
-    keywords='knowledge-graph Neo4j RDF NCATS NCATS-Translator Biolink-Model',
+    keywords='linkml data-science denormalization yaml json data-framkes',
     classifiers=[
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3'
     ],
-    install_requires=[r for r in REQUIREMENTS if not r.startswith("#")],
+    #install_requires=[r for r in REQUIREMENTS if not r.startswith("#")],
+    install_requires=['click', 'pyyaml'],
     extras_require=EXTRAS,
     include_package_data=True,
     entry_points={
