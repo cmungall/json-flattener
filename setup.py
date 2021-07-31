@@ -37,6 +37,6 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     entry_points={
-#        'console_scripts': ['json_flattener=json_flattener.cli:cli']
+        'console_scripts': ['jfl=json_flattener.cli:main']
     }
 )

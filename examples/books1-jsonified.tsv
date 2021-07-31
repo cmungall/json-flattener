@@ -1,0 +1,6 @@
+id	name	genres	creator_json	books_json
+S001	Lord of the Rings	[fantasy]	{\"name\": \"JRR Tolkein\", \"from_country\": \"England\"}	[{\"id\": \"S001.1\", \"name\": \"Fellowship of the Ring\", \"price\": 5.99, \"summary\": \"Hobbits\"}, {\"id\": \"S001.2\", \"name\": \"The Two Towers\", \"price\": 5.99, \"summary\": \"More hobbits\"}, {\"id\": \"S001.3\", \"name\": \"Return of the King\", \"price\": 6.99, \"summary\": \"Yet more hobbits\"}]
+S002	The Culture Series	[scifi]	{\"name\": \"Ian M Banks\", \"from_country\": \"Scotland\"}	[{\"id\": \"S002.1\", \"name\": \"Consider Phlebas\", \"price\": 5.99}, {\"id\": \"S002.2\", \"name\": \"Player of Games\", \"price\": 5.99}]
+S003	Book of the New Sun	[scifi|fantasy]	{\"name\": \"Gene Wolfe\", \"from_country\": \"USA\", \"genres\": [\"scifi\", \"fantasy\"]}	[{\"id\": \"S003.1\", \"name\": \"Shadow of the Torturer\"}, {\"id\": \"S003.2\", \"name\": \"Claw of the Conciliator\", \"price\": 6.99}]
+S004	Example with single book		{\"name\": \"Ms Writer\", \"from_country\": \"USA\", \"genres\": [\"romance\"]}	[{\"id\": \"S004.1\", \"name\": \"Blah\"}]
+S005	Example with no books		{\"name\": \"Mr Unproductive\", \"from_country\": \"USA\", \"genres\": [\"romance\", \"scifi\", \"fantasy\"]}	

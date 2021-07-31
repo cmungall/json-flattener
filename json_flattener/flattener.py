@@ -56,9 +56,6 @@ class KeyConfig:
             if not isinstance(self.serializers, List):
                 self.serializers = [self.serializers]
             self.serializers = [Serializer(x) if isinstance(x, str) else x for x in self.serializers]
-        if len(self.serializers) == 0:
-            if not self.flatten:
-                raise Exception(f'Must set EITHER flatten OR serializers')
         if self.mappings is None:
             self.mappings = {}
 
@@ -70,6 +67,10 @@ class GlobalConfig:
     csv_inner_delimiter: str = '|'
     csv_list_quotes: Tuple[str, str] = ('[', ']')
     strict = True
+
+    def __post_init__(self):
+        if self.key_configs is None:
+            self.key_configs = {}
 
 CONFIGMAP = Dict[KEYNAME,KeyConfig]
 
@@ -110,6 +111,8 @@ def flatten(objs: List[dict], config: GlobalConfig = GlobalConfig()) -> List:
         if config.flatten and not config.is_list:
             for obj in objs2:
                 inner_obj = obj[field]
+                if not isinstance(inner_obj, dict):
+                    raise Exception(f'Value of {field} is not a dict. Consider configuring {field} to be a list')
                 for k, v in inner_obj.items():
                     f2 = f'{field}{sep}{k}'
                     obj[f2] = v

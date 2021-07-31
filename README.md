@@ -41,9 +41,13 @@ Given YAML/JSON/JSON-Lines such as:
       price: 5.99
 ```
 
-In the above, each top level list element represents a book series, and is composed of metadata about the series, plus a list of book objects
+Denormalize using `jfl` command:
 
-json-flattener will translate the aboe to CSV/TSV such as:
+```bash
+jfl flatten -C creator=flat -C books=multivalued -i examples/books1.yaml -o examples/books1-flattened.tsv
+```
+
+
 
 |id|name|genres|creator_name|creator_from_country|books_name|books_summary|books_price|books_id|creator_genres
 |---|---|---|---|---|---|---|---|---|---|
@@ -51,9 +55,19 @@ json-flattener will translate the aboe to CSV/TSV such as:
 |S002|The Culture Series|[scifi]|Ian M Banks|Scotland|[Consider Phlebas\|Player of Games]||[5.99\|5.99]|[S002.1\|S002.2]|
 
 
-with the ability to roundtrip back to YAML/JSON
+Convert back to JSON/YAML:
+
+```bash
+jfl unflatten -C creator=flat -C books=multivalued -i examples/books1.tsv -o examples/books1.yaml
+```
+
+
 
 This library also allows complex fields to be directly serialized as json or yaml (the default is to append `_json` to the key). For example:
+
+```bash
+jfl flatten -C creator=json -C books=json -i examples/books1.yaml -o examples/books1-jsonified.tsv
+```
 
 |id|name|genres|creator_json|books_json|
 |---|---|---|---|---|
