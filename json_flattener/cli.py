@@ -198,5 +198,53 @@ def flatten(input: str, output: str, input_format: str, output_format: str, key:
     with open(output, 'w') as stream:
         flatten_to_csv(objs, stream, config=config)
 
+
+@main.command()
+@input_option
+@input_format_option
+@output_option
+@output_format_option
+@multivalued_keys_option
+@flatten_keys_option
+@serializer_option
+@serialized_keys_option
+@config_option
+@key_option
+def unflatten(input: str, output: str, input_format: str, output_format: str, key: str,
+            serializer: str, serialized_keys = [], multivalued_keys = [], flatten_keys = [],
+            config_key = []):
+    """Unflatten a file from TSV/CSV
+
+    Example:
+        jfl unflatten --input my.tsv --output my.yaml
+
+    """
+    input_format = _get_format(input, input_format)
+    output_format = _get_format(output, output_format)
+    config = _get_config(serializer = serializer,
+                         serialized_keys = serialized_keys,
+                         multivalued_keys = multivalued_keys,
+                         flatten_keys = flatten_keys,
+                         config_keys = config_key)
+    with open(input) as stream:
+        if input_format == 'tsv':
+            sep = '\t'
+        elif input_format == 'csv':
+            sep = ','
+        else:
+            logging.warning(f'Guessing separator: {sep}')
+            sep = '\t'
+        objs = unflatten_from_csv(stream, config)
+    logging.debug(f'INPUT={objs}')
+    if key is not None:
+        obj = {key: objs}
+    else:
+        obj = objs
+    with open(output, 'w') as stream:
+        if output_format == 'yaml':
+            yaml.safe_dump(obj, stream=stream)
+        else:
+            json.dump(obj, stream)
+
 if __name__ == "__main__":
     main()

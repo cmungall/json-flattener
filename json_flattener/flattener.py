@@ -244,7 +244,7 @@ def flatten_to_csv(objs, outstream, config: GlobalConfig = GlobalConfig(), **par
 
 
 
-def unflatten_from_csv(source, config: GlobalConfig = GlobalConfig(), **params):
+def unflatten_from_csv(source, config: GlobalConfig = GlobalConfig(), **params) -> List[Any]:
     """
     Read serialized objects from a CSV file
 
