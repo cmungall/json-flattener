@@ -1,4 +1,5 @@
 import os
+import io
 import sys
 import logging
 import click
@@ -7,13 +8,21 @@ import json
 from json_flattener import flatten_to_csv, unflatten_from_csv, GlobalConfig, KeyConfig, Serializer
 
 
-def _get_format(input: str, input_format: str =None) -> str:
+def _get_format(input: str, input_format: str =None, default_format: str = None) -> str:
     if input_format is None:
+        if input is None:
+            if default_format is not None:
+                return default_format
+            else:
+                raise Exception(f'Must pass input file or default format')
         _, ext = os.path.splitext(input)
         if ext is not None:
             input_format = ext.replace('.', '')
         else:
-            raise Exception(f'Must pass format option OR use known file suffix: {input}')
+            if default_format is not None:
+                return default_format
+            else:
+                raise Exception(f'Must pass format option OR use known file suffix: {input}')
     return input_format.lower()
 
 def _is_xsv(fmt: str) -> bool:
@@ -78,7 +87,7 @@ output_option = click.option(
     "-o", "--output", help="Output file, e.g. a SSSOM tsv file."
 )
 output_format_option = click.option(
-    "-O",
+    "-t",
     "--output-format",
     help=f'Desired output format, e.g. {",".join(FORMATS)}',
 )
@@ -119,6 +128,16 @@ config_option = click.option(
     multiple=True,
     help="Key configuration. Must be of form KEY={yaml,json,flat,multivalued}*",
 )
+load_config_option = click.option(
+    "-c",
+    "--load-config",
+    help="Path to global configuration file to be loaded",
+)
+save_config_option = click.option(
+    "-O",
+    "--save-config",
+    help="Path to global configuration file to be saved",
+)
 @click.group()
 @click.option("-v", "--verbose", count=True)
 @click.option("-q", "--quiet")
@@ -154,9 +173,12 @@ def main(verbose: int, quiet: bool):
 @serializer_option
 @serialized_keys_option
 @config_option
+@load_config_option
+@save_config_option
 @key_option
 def flatten(input: str, output: str, input_format: str, output_format: str, key: str,
             serializer: str, serialized_keys = [], multivalued_keys = [], flatten_keys = [],
+            save_config: str = None, load_config: str = None,
             config_key = []):
     """Flatten a file to TSV/CSV
 
@@ -197,6 +219,9 @@ def flatten(input: str, output: str, input_format: str, output_format: str, key:
     logging.debug(f'CONFIG={config}')
     with open(output, 'w') as stream:
         flatten_to_csv(objs, stream, config=config)
+    if save_config is not None:
+        with open(save_config , 'w') as stream:
+            yaml.dump(config.as_dict(), stream)
 
 
 @main.command()
@@ -209,10 +234,12 @@ def flatten(input: str, output: str, input_format: str, output_format: str, key:
 @serializer_option
 @serialized_keys_option
 @config_option
+@load_config_option
 @key_option
 def unflatten(input: str, output: str, input_format: str, output_format: str, key: str,
-            serializer: str, serialized_keys = [], multivalued_keys = [], flatten_keys = [],
-            config_key = []):
+              serializer: str, serialized_keys = [], multivalued_keys = [], flatten_keys = [],
+              load_config: str = None,
+              config_key = []):
     """Unflatten a file from TSV/CSV
 
     Example:
@@ -220,12 +247,16 @@ def unflatten(input: str, output: str, input_format: str, output_format: str, ke
 
     """
     input_format = _get_format(input, input_format)
-    output_format = _get_format(output, output_format)
+    output_format = _get_format(output, output_format, 'json')
     config = _get_config(serializer = serializer,
                          serialized_keys = serialized_keys,
                          multivalued_keys = multivalued_keys,
                          flatten_keys = flatten_keys,
                          config_keys = config_key)
+    if load_config is not None:
+        with open(load_config) as stream:
+            config = GlobalConfig.from_dict(**yaml.safe_load(stream))
+    logging.debug(f'CONFIG={config}')
     with open(input) as stream:
         if input_format == 'tsv':
             sep = '\t'
@@ -245,6 +276,7 @@ def unflatten(input: str, output: str, input_format: str, output_format: str, ke
             yaml.safe_dump(obj, stream=stream)
         else:
             json.dump(obj, stream)
+
 
 if __name__ == "__main__":
     main()

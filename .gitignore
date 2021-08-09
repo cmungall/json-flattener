@@ -1,3 +1,5 @@
+\#*\#
+.#*
 env/
 py*/
 __pycache__
@@ -6,6 +8,7 @@ __pycache__
 tests/logs/*.log
 build
 dist
+.ipynb_checkpoints/
 
 /build
 /dist

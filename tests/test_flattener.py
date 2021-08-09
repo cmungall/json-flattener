@@ -1,18 +1,30 @@
+import os
 import unittest
 import json
+import yaml
 import io
 from json_flattener import flatten, unflatten, KeyConfig, GlobalConfig, Serializer, flatten_to_csv, unflatten_from_csv
+
+ROOT = os.path.abspath(os.path.dirname(__file__))
+INPUT_DIR = os.path.join(ROOT, 'inputs')
+INPUT = os.path.join(INPUT_DIR, 'books1.yaml')
 
 def _json(obj) -> str:
     return json.dumps(obj, indent=' ', sort_keys=True)
 
-def _roundtrip_to_tsv(objs, **params):
+
+def _roundtrip_to_tsv(objs, config=None, **params):
     output = io.StringIO()
-    flatten_to_csv(objs, output, **params)
+    flatten_to_csv(objs, output, config=config, **params)
+    print(f'CONFIG:')
+    config_dict = config.as_dict()
+    print(_json(config_dict))
+    config2 = GlobalConfig.from_dict(**config_dict)
+    print(f'C2 = {config2}')
     print('AS TSV')
     print(output.getvalue())
     inp = io.StringIO(output.getvalue())
-    objs2 = unflatten_from_csv(inp, **params)
+    objs2 = unflatten_from_csv(inp, config=config, **params)
     print('BACK FROM TSV')
     print(_json(objs2))
     print('ORIG')
@@ -169,6 +181,62 @@ class FlattenerCase(unittest.TestCase):
             assert 'object' not in obj
             assert 'closure' not in obj
 
+        # test6: as test 1 but with no []s around lists, and explicit list assignment
+        kconfig = {"subject": KeyConfig(delete=True, serializers='yaml'),
+                   "object": KeyConfig(delete=True, flatten=True),
+                   "closure": KeyConfig(delete=True, is_list=True, flatten=True),
+                   "publications": KeyConfig(is_list=True),
+                   # TODO: these should be inferred
+                   "closure_id": KeyConfig(is_list=True),
+                   "closure_name": KeyConfig(is_list=True),
+                   }
+        config = GlobalConfig(key_configs=kconfig, csv_list_markers=('', ''))
+        flattened_objs = flatten(objs, config)
+        print('ORIGINAL 1:')
+        print(_json(objs))
+        print('FLATTENED 1:')
+        print(_json(flattened_objs))
+        for obj in flattened_objs:
+            assert 'subject_yaml' in obj
+            assert 'object_id' in obj
+            assert 'object_name' in obj
+            assert 'object_category' in obj
+            assert 'closure_id' in obj
+            assert 'closure_name' in obj
+            assert 'subject' not in obj
+            assert 'object' not in obj
+            assert 'closure' not in obj
+        _roundtrip_to_tsv(objs, config=config)
+        roundtripped_objs = unflatten(flattened_objs, config)
+        print('ORIGINAL 1b:')
+        print(_json(objs))
+        print('ROUNDTRIP 1:')
+        roundtrip_json = _json(roundtripped_objs)
+        print(roundtrip_json)
+        assert roundtripped_objs == objs
+        assert roundtrip_json == original_objs_json
+
+        # test 7: melt (no reverse)
+        kconfig = {"subject": KeyConfig(delete=True, serializers=[Serializer.as_str]),
+                   "object": KeyConfig(delete=True, serializers=[Serializer.as_str]),
+                   "closure": KeyConfig(delete=True, is_list=True, flatten=True, melt_list_elements=True),
+                   "publications": KeyConfig(delete=True, melt_list_elements=True)}
+        config = GlobalConfig(key_configs=kconfig)
+        flattened_objs = flatten(objs, config)
+        print('ORIGINAL 7:')
+        print(_json(objs))
+        print('FLATTENED 7:')
+        print(_json(flattened_objs))
+        for obj in flattened_objs:
+            assert 'subject_as_str' in obj
+            assert 'object_as_str' in obj
+            assert 'PMID1' in obj
+            assert 'x1' in obj
+            assert 'X1' in obj
+            assert 'publications' not in obj
+            assert 'subject' not in obj
+            assert 'object' not in obj
+
     def test_nulls(self):
 
         dict = {
@@ -188,7 +256,8 @@ class FlattenerCase(unittest.TestCase):
             s = dict.copy()
             # make empty
             #del s['books'][i]['price']
-            s['books'][i]['price'] = None
+            #s['books'][i]['price'] = None
+            del s['books'][i]['price']
             objs = [s]
             original_objs_json = _json(objs)
             print(original_objs_json)
@@ -205,7 +274,7 @@ class FlattenerCase(unittest.TestCase):
                 assert 'books' not in obj
                 assert 'books_id' in obj
                 assert 'books_name' in obj
-                assert 'books_price' in obj
+                #assert 'books_price' in obj
             roundtripped_objs = unflatten(flattened_objs, config)
             print(f'ROUNDTRIP {i}:')
             roundtrip_json = _json(roundtripped_objs)
@@ -214,8 +283,23 @@ class FlattenerCase(unittest.TestCase):
             assert roundtrip_json == original_objs_json
             _roundtrip_to_tsv(objs, config=config)
 
-
-
+    def test_books(self):
+        with open(INPUT) as stream:
+            shop = yaml.safe_load(stream)
+        objs = shop['all_book_series']
+        kconfig = {"creator": KeyConfig(delete=True, flatten=True),
+                   "books": KeyConfig(delete=True, is_list=True, flatten=True)}
+        config = GlobalConfig(key_configs=kconfig)
+        flattened_objs = flatten(objs, config)
+        #print(_json(config))
+        print('BOOKS, flattened:')
+        print(_json(flattened_objs))
+        #config.key_configs['books'].mappings = None
+        roundtripped_objs = unflatten(flattened_objs, config)
+        roundtrip_json = _json(roundtripped_objs)
+        print('BOOKS, roundtripped:')
+        print(roundtrip_json)
+        _roundtrip_to_tsv(objs, config=config)
 
 if __name__ == '__main__':
     unittest.main()

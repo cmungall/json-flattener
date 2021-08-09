@@ -1,0 +1,115 @@
+{
+   "all_book_series" : [
+      {
+         "books" : [
+            {
+               "price" : 5.99,
+               "id" : "S001.1",
+               "summary" : "Hobbits",
+               "name" : "Fellowship of the Ring"
+            },
+            {
+               "price" : 5.99,
+               "summary" : "More hobbits",
+               "id" : "S001.2",
+               "name" : "The Two Towers"
+            },
+            {
+               "price" : 6.99,
+               "id" : "S001.3",
+               "summary" : "Yet more hobbits",
+               "name" : "Return of the King"
+            }
+         ],
+         "genres" : [
+            "fantasy"
+         ],
+         "id" : "S001",
+         "name" : "Lord of the Rings",
+         "creator" : {
+            "from_country" : "England",
+            "name" : "JRR Tolkein"
+         }
+      },
+      {
+         "name" : "The Culture Series",
+         "creator" : {
+            "name" : "Ian M Banks",
+            "from_country" : "Scotland"
+         },
+         "id" : "S002",
+         "genres" : [
+            "scifi"
+         ],
+         "books" : [
+            {
+               "price" : 5.99,
+               "id" : "S002.1",
+               "name" : "Consider Phlebas"
+            },
+            {
+               "price" : 5.99,
+               "name" : "Player of Games",
+               "id" : "S002.2"
+            }
+         ]
+      },
+      {
+         "name" : "Book of the New Sun",
+         "creator" : {
+            "genres" : [
+               "scifi",
+               "fantasy"
+            ],
+            "name" : "Gene Wolfe",
+            "from_country" : "USA"
+         },
+         "books" : [
+            {
+               "name" : "Shadow of the Torturer",
+               "id" : "S003.1"
+            },
+            {
+               "id" : "S003.2",
+               "name" : "Claw of the Conciliator",
+               "price" : 6.99
+            }
+         ],
+         "id" : "S003",
+         "genres" : [
+            "scifi",
+            "fantasy"
+         ]
+      },
+      {
+         "books" : [
+            {
+               "name" : "Blah",
+               "id" : "S004.1"
+            }
+         ],
+         "id" : "S004",
+         "name" : "Example with single book",
+         "creator" : {
+            "name" : "Ms Writer",
+            "genres" : [
+               "romance"
+            ],
+            "from_country" : "USA"
+         }
+      },
+      {
+         "id" : "S005",
+         "creator" : {
+            "from_country" : "USA",
+            "genres" : [
+               "romance",
+               "scifi",
+               "fantasy"
+            ],
+            "name" : "Mr Unproductive"
+         },
+         "name" : "Example with no books"
+      }
+   ]
+}
