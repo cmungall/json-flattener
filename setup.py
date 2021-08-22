@@ -1,3 +1,4 @@
+import os
 from setuptools import setup, find_packages
 
 NAME = 'json_flattener'
@@ -7,6 +8,8 @@ AUTHOR = 'Chris Mungall'
 EMAIL = 'cjmungall@lbl.gov'
 REQUIRES_PYTHON = '>=3.7.0'
 LICENSE = 'BSD'
+
+#version = pattern.search(text).group(1)
 
 #with open("requirements.txt", "r") as FH:
 #    REQUIREMENTS = FH.readlines()
