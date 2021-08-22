@@ -28,7 +28,7 @@ setup(
     license=LICENSE,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'json_flattener': ["config.yml"]},
-    keywords='linkml data-science denormalization yaml json data-framkes',
+    keywords='linkml data-science denormalization yaml json data-frames',
     classifiers=[
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
@@ -41,5 +41,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': ['jfl=json_flattener.cli:main']
-    }
+    },
+    setup_requires=['pbr'],
+    pbr=True,
 )
