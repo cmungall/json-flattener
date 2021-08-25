@@ -2,6 +2,12 @@
 
 Python library for denormalizing/flattening lists of complex objects to tables/data frames, with roundtripping
 
+## Notebook Example
+
+[EXAMPLE.ipynb](https://github.com/cmungall/json-flattener/blob/main/EXAMPLE.ipynb)
+
+## Description
+
 Given YAML/JSON/JSON-Lines such as:
 
 ```yaml
