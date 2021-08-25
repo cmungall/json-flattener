@@ -219,7 +219,6 @@ def unflatten(objs: List[ROW], config: GlobalConfig = GlobalConfig()) -> List[OB
                         if serializer == Serializer.yaml:
                             nu_obj = yaml.safe_load(serialized_v)
                         elif serializer == Serializer.json:
-                            print(f'Loading: {injected_field} in {obj}')
                             nu_obj = json.loads(serialized_v)
                         elif serializer == Serializer.pickle:
                             nu_obj = pickle.loads(serialized_v)
@@ -338,6 +337,15 @@ def unflatten_from_csv(source, config: GlobalConfig = GlobalConfig(), **params) 
                 except ValueError:
                     return x
 
+    # check which fields are serialized
+    serialized_fields = set()
+    gconfig = config.key_configs
+    for field, kconfig in gconfig.items():
+        serializers = kconfig.serializers
+        for serializer in serializers:
+            injected_field = _serialized_field_name(field, config.sep, serializer)
+            serialized_fields.add(injected_field)
+
     objs = []
     for row in r:
         nu_obj = {}
@@ -348,11 +356,11 @@ def unflatten_from_csv(source, config: GlobalConfig = GlobalConfig(), **params) 
             is_direct_list = False
             if key_config is not None and key_config.is_list:
                 is_direct_list = True
-                if key_config.serializers is not None and len(key_config.serializers) > 0:
-                    is_direct_list = False
             if not is_direct_list:
                 if lo != '' and lc != '' and v.startswith(lo) and v.endswith(lc):
                     is_direct_list = True
+            if k in serialized_fields:
+                is_direct_list = False
             #if (lo != '' or lc != '') and v.startswith(lo) and v.endswith(lc) and not k.endswith('_json') and not k.endswith('_yaml'):
             if is_direct_list:
                 if lo != '':

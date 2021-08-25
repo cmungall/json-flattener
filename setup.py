@@ -9,6 +9,7 @@ EMAIL = 'cjmungall@lbl.gov'
 REQUIRES_PYTHON = '>=3.7.0'
 LICENSE = 'BSD'
 
+VERSION = '0.1.7'
 #version = pattern.search(text).group(1)
 
 #with open("requirements.txt", "r") as FH:
@@ -20,6 +21,7 @@ setup(
     name=NAME,
     author=AUTHOR,
     author_email=EMAIL,
+    version=VERSION,
     python_requires=REQUIRES_PYTHON,
     url=URL,
     description=DESCRIPTION,
@@ -42,6 +44,6 @@ setup(
     entry_points={
         'console_scripts': ['jfl=json_flattener.cli:main']
     },
-    setup_requires=['pbr'],
-    pbr=True,
+    #setup_requires=['pbr'],
+    #pbr=True,
 )

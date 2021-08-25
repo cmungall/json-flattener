@@ -3,6 +3,7 @@ import unittest
 import json
 import yaml
 import io
+import logging
 from json_flattener import flatten, unflatten, KeyConfig, GlobalConfig, Serializer, flatten_to_csv, unflatten_from_csv
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -14,21 +15,24 @@ def _json(obj) -> str:
 
 
 def _roundtrip_to_tsv(objs, config=None, **params):
+    """
+    Convert json objects to TSV and convert back
+    """
     output = io.StringIO()
     flatten_to_csv(objs, output, config=config, **params)
-    print(f'CONFIG:')
+    #print(f'CONFIG:')
     config_dict = config.as_dict()
-    print(_json(config_dict))
+    #print(_json(config_dict))
     config2 = GlobalConfig.from_dict(**config_dict)
     print(f'C2 = {config2}')
     print('AS TSV')
     print(output.getvalue())
     inp = io.StringIO(output.getvalue())
     objs2 = unflatten_from_csv(inp, config=config, **params)
-    print('BACK FROM TSV')
-    print(_json(objs2))
-    print('ORIG')
-    print(_json(objs))
+    logging.info('BACK FROM TSV')
+    logging.info(_json(objs2))
+    logging.info('ORIG')
+    logging.info(_json(objs))
     assert objs == objs2
 
 class FlattenerCase(unittest.TestCase):
@@ -236,6 +240,27 @@ class FlattenerCase(unittest.TestCase):
             assert 'publications' not in obj
             assert 'subject' not in obj
             assert 'object' not in obj
+
+    def test_lists(self):
+        obj = {
+            "id": "X1",
+            "my_list": [
+                {"x": "foo", "y": 2},
+                {"x": "bar", "y": 3},
+            ]
+        }
+        key_config = {"my_list": KeyConfig(delete=True, flatten=True, is_list=True, serializers=[Serializer.json])}
+        global_config = GlobalConfig(key_configs=key_config)
+        _roundtrip_to_tsv([obj], global_config)
+        key_config = {"my_list": KeyConfig(delete=True, flatten=False, is_list=True, serializers=[Serializer.json])}
+        global_config = GlobalConfig(key_configs=key_config)
+        _roundtrip_to_tsv([obj], global_config)
+        key_config = {"my_list": KeyConfig(delete=False, flatten=True, is_list=True, serializers=[Serializer.json])}
+        global_config = GlobalConfig(key_configs=key_config)
+        _roundtrip_to_tsv([obj], global_config)
+        key_config = {"my_list": KeyConfig(delete=False, flatten=False, is_list=True, serializers=[Serializer.json])}
+        global_config = GlobalConfig(key_configs=key_config)
+        _roundtrip_to_tsv([obj], global_config)
 
     def test_nulls(self):
 
