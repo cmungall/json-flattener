@@ -290,7 +290,8 @@ def flatten_to_csv(objs: List[OBJECT], outstream, config: GlobalConfig = GlobalC
         for k in obj.keys():
             if k not in fieldnames:
                 fieldnames.append(k)
-    w = csv.DictWriter(outstream, delimiter=delimiter, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar="\\")
+    w = csv.DictWriter(outstream, delimiter=delimiter, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, 
+                       escapechar='\\', lineterminator='\n')
     w.writeheader()
     for obj in flat_objs:
         nu_obj = {}
@@ -300,7 +301,7 @@ def flatten_to_csv(objs: List[OBJECT], outstream, config: GlobalConfig = GlobalC
                 v = f'{lo}{v}{lc}'
             else:
                 v = _serialize_as_str(v)
-            nu_obj[k] = v.replace('\n', '\\n').replace('\t', '\\t')
+            nu_obj[k] = v
         w.writerow(nu_obj)
 
 
