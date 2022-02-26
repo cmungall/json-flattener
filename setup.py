@@ -9,7 +9,7 @@ EMAIL = 'cjmungall@lbl.gov'
 REQUIRES_PYTHON = '>=3.7.0'
 LICENSE = 'BSD'
 
-VERSION = '0.1.7'
+VERSION = '0.1.9'
 #version = pattern.search(text).group(1)
 
 #with open("requirements.txt", "r") as FH:
