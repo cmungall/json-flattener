@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "json_flattener"
+version = "0.1.9"
+description = "Python library for denormalizing nested dicts or json objects to tables and back"
+authors = ["Chris Mungall <cjmungall@lbl.gov>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+repository = "https://github.com/cmungall/json-flattener"
+classifiers = [
+    'Intended Audience :: Science/Research',
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
+]
+keywords = ['linkml',  'data-science',  'denormalization', 'yaml', 'json']
+exclude = ["*.tests", "*.tests.*", "tests.*", "tests"]
+
+[tool.poetry.dependencies]
+python = "^3.7.0"
+pyyaml = "*"
+click = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+pyyaml = "*"
+click = "*"
+jupyter = "*"
+pandas = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+jfl = 'json_flattener.cli:main'

@@ -1,4 +1,0 @@
-export PYTHONPATH=.
-
-test:
-	pytest
