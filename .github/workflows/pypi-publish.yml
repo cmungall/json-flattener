@@ -9,29 +9,40 @@ on:
       - created
 
 jobs:
-  deploy:
-
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
 
-    - name: build a binary wheel dist
-      run: |
-        rm -fr dist
-        python setup.py bdist_wheel sdist
-        
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.2.2
-      with:
-        user: __token__
-        password: ${{ secrets.json_flattener_pypi_token }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Set Poetry config
+        run: |
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+
+      - name: Install Dependencies
+        run: poetry install --no-dev
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Publish distribution 📦 to PyPI
+        env:
+          PYPI_TOKEN: ${{ secrets.json_flattener_pypi_token }}
+        run: |
+          poetry config pypi-token.pypi $PYPI_TOKEN
+          poetry publish --build
