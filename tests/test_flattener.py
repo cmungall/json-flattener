@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import unittest
+from typing import List, Any
 
 import yaml
 
@@ -25,29 +26,28 @@ def _json(obj) -> str:
     return json.dumps(obj, indent=" ", sort_keys=True)
 
 
-def _roundtrip_to_tsv(objs, config=None, **params):
-    """
-    Convert json objects to TSV and convert back
-    """
-    output = io.StringIO()
-    flatten_to_csv(objs, output, config=config, **params)
-    # print(f'CONFIG:')
-    config_dict = config.as_dict()
-    # print(_json(config_dict))
-    config2 = GlobalConfig.from_dict(**config_dict)
-    print(f"C2 = {config2}")
-    print("AS TSV")
-    print(output.getvalue())
-    inp = io.StringIO(output.getvalue())
-    objs2 = unflatten_from_csv(inp, config=config, **params)
-    logging.info("BACK FROM TSV")
-    logging.info(_json(objs2))
-    logging.info("ORIG")
-    logging.info(_json(objs))
-    assert objs == objs2
-
-
 class FlattenerCase(unittest.TestCase):
+
+    def _roundtrip_to_tsv(self, objs: List[Any], config=None, **params):
+        """
+        Convert json objects to TSV and convert back
+        """
+        output = io.StringIO()
+        flatten_to_csv(objs, output, config=config, **params)
+        # print(f'CONFIG:')
+        config_dict = config.as_dict()
+        # print(_json(config_dict))
+        config2 = GlobalConfig.from_dict(**config_dict)
+        print(f"C2 = {config2}")
+        print("AS TSV")
+        print(output.getvalue())
+        inp = io.StringIO(output.getvalue())
+        objs2 = unflatten_from_csv(inp, config=config, **params)
+        logging.info("BACK FROM TSV")
+        logging.info(_json(objs2))
+        logging.info("ORIG")
+        logging.info(_json(objs))
+        assert objs == objs2
     def test_flattener(self):
         """
         Tests core functionality
@@ -91,7 +91,7 @@ class FlattenerCase(unittest.TestCase):
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
-        _roundtrip_to_tsv(objs, config=config)
+        self._roundtrip_to_tsv(objs, config=config)
         roundtripped_objs = unflatten(flattened_objs, config)
         print("ORIGINAL 1b:")
         print(_json(objs))
@@ -227,7 +227,7 @@ class FlattenerCase(unittest.TestCase):
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
-        _roundtrip_to_tsv(objs, config=config)
+        self._roundtrip_to_tsv(objs, config=config)
         roundtripped_objs = unflatten(flattened_objs, config)
         print("ORIGINAL 1b:")
         print(_json(objs))
@@ -278,7 +278,7 @@ class FlattenerCase(unittest.TestCase):
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
-        _roundtrip_to_tsv([obj], global_config)
+        self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
                 delete=True, flatten=False, is_list=True,
@@ -286,21 +286,21 @@ class FlattenerCase(unittest.TestCase):
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
-        _roundtrip_to_tsv([obj], global_config)
+        self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
                 delete=False, flatten=True, is_list=True, serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
-        _roundtrip_to_tsv([obj], global_config)
+        self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
                 delete=False, flatten=False, is_list=True, serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
-        _roundtrip_to_tsv([obj], global_config)
+        self._roundtrip_to_tsv([obj], global_config)
 
     def test_nulls(self):
         """
@@ -345,7 +345,7 @@ class FlattenerCase(unittest.TestCase):
             print(roundtrip_json)
             assert roundtripped_objs == objs
             assert roundtrip_json == original_objs_json
-            _roundtrip_to_tsv(objs, config=config)
+            self._roundtrip_to_tsv(objs, config=config)
 
     def test_books(self):
         """
@@ -368,7 +368,7 @@ class FlattenerCase(unittest.TestCase):
         roundtrip_json = _json(roundtripped_objs)
         print("BOOKS, roundtripped:")
         print(roundtrip_json)
-        _roundtrip_to_tsv(objs, config=config)
+        self._roundtrip_to_tsv(objs, config=config)
 
 
 if __name__ == "__main__":
