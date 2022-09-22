@@ -95,7 +95,8 @@ class KeyConfig(ConfigEntity):
             if not isinstance(self.serializers, List):
                 self.serializers = [self.serializers]
             self.serializers = [
-                Serializer(x) if isinstance(x, str) else x for x in self.serializers
+                Serializer(x) if isinstance(x, str) else x
+                for x in self.serializers
             ]
         if self.mappings is None:
             self.mappings = {}
@@ -124,7 +125,9 @@ class GlobalConfig(ConfigEntity):
     sep: str = field(default_factory=lambda: "_")
     csv_delimiter: str = field(default_factory=lambda: "\t")
     csv_inner_delimiter: str = field(default_factory=lambda: "|")
-    csv_list_markers: Tuple[str, str] = field(default_factory=lambda: DEFAULT_LIST_PARENS)
+    csv_list_markers: Tuple[str, str] = field(
+        default_factory=lambda: DEFAULT_LIST_PARENS
+    )
     strict: bool = field(default_factory=lambda: True)
 
     def __post_init__(self):
@@ -152,11 +155,15 @@ class GlobalConfig(ConfigEntity):
 CONFIGMAP = Dict[KEYNAME, KeyConfig]
 
 
-def _serialized_field_name(field: KEYNAME, sep: str, serializer: Serializer) -> str:
+def _serialized_field_name(
+    field: KEYNAME, sep: str, serializer: Serializer
+) -> str:
     return f"{field}{sep}{serializer.name}"
 
 
-def flatten(objs: List[OBJECT], config: GlobalConfig = GlobalConfig()) -> List[ROW]:
+def flatten(
+    objs: List[OBJECT], config: GlobalConfig = GlobalConfig()
+) -> List[ROW]:
     """
     Flattens a list of dicts into a denormalized representation according to a configuration
 
@@ -216,7 +223,9 @@ def flatten(objs: List[OBJECT], config: GlobalConfig = GlobalConfig()) -> List[R
                     inner_fields.update(inner_obj.keys())
                 injected_field_map: Dict[KEYNAME, KEYNAME] = {}
                 for k in inner_fields:
-                    injected_field_map[k] = f"{field_name}{sep}{k}"  # e.g book_price
+                    injected_field_map[
+                        k
+                    ] = f"{field_name}{sep}{k}"  # e.g book_price
                     obj[injected_field_map[k]] = []
                 for inner_obj in inner_objs:
                     for k, injected_field in injected_field_map.items():
@@ -225,7 +234,9 @@ def flatten(objs: List[OBJECT], config: GlobalConfig = GlobalConfig()) -> List[R
                         if v is not None and config.melt_list_elements:
                             obj[v] = True
                         field_map[k] = injected_field
-        if config.melt_list_elements and not (config.flatten and config.is_list):
+        if config.melt_list_elements and not (
+            config.flatten and config.is_list
+        ):
             for obj in objs2:
                 inner_objs = obj.get(field_name, [])
                 if config.melt_list_elements:
@@ -240,7 +251,9 @@ def flatten(objs: List[OBJECT], config: GlobalConfig = GlobalConfig()) -> List[R
     return objs2
 
 
-def unflatten(objs: List[ROW], config: GlobalConfig = GlobalConfig(), **params) -> List[OBJECT]:
+def unflatten(
+    objs: List[ROW], config: GlobalConfig = GlobalConfig(), **params
+) -> List[OBJECT]:
     """
     Reverses the flatten operation
 
@@ -300,8 +313,12 @@ def unflatten(objs: List[ROW], config: GlobalConfig = GlobalConfig(), **params) 
                     and len(obj[injected_field]) > 0
                 }
                 if len(fmap_actual.values()) > 0:
-                    injected_field = list(fmap_actual.values())[0]  # pick arbitrary
-                    inner_objs = [{} for x in obj[injected_field]]  # seed inner objects
+                    injected_field = list(fmap_actual.values())[
+                        0
+                    ]  # pick arbitrary
+                    inner_objs = [
+                        {} for x in obj[injected_field]
+                    ]  # seed inner objects
                     for i in range(0, len(inner_objs)):
                         inner_obj = inner_objs[i]
                         for k, injected_field in fmap_actual.items():
@@ -315,7 +332,12 @@ def unflatten(objs: List[ROW], config: GlobalConfig = GlobalConfig(), **params) 
     return objs2
 
 
-def flatten_to_csv(objs: List[OBJECT], outstream, config: GlobalConfig = GlobalConfig(), **params):
+def flatten_to_csv(
+    objs: List[OBJECT],
+    outstream,
+    config: GlobalConfig = GlobalConfig(),
+    **params,
+):
     """
     Serialize a list of objects as a CSV
 
@@ -381,7 +403,9 @@ def unflatten_from_csv(
         instream = open(source)
     else:
         instream = source
-    r = csv.DictReader(instream, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar="\\")
+    r = csv.DictReader(
+        instream, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar="\\"
+    )
 
     lo, lc = list_parens
 
@@ -403,7 +427,9 @@ def unflatten_from_csv(
     for field, kconfig in gconfig.items():
         serializers = kconfig.serializers
         for serializer in serializers:
-            injected_field = _serialized_field_name(field, config.sep, serializer)
+            injected_field = _serialized_field_name(
+                field, config.sep, serializer
+            )
             serialized_fields.add(injected_field)
 
     objs = []
@@ -417,7 +443,12 @@ def unflatten_from_csv(
             if key_config is not None and key_config.is_list:
                 is_direct_list = True
             if not is_direct_list:
-                if lo != "" and lc != "" and v.startswith(lo) and v.endswith(lc):
+                if (
+                    lo != ""
+                    and lc != ""
+                    and v.startswith(lo)
+                    and v.endswith(lc)
+                ):
                     is_direct_list = True
             if k in serialized_fields:
                 is_direct_list = False
@@ -427,12 +458,16 @@ def unflatten_from_csv(
                     if v.startswith(lo):
                         v = v.replace(lo, "", 1)
                     else:
-                        raise Exception(f"Expected start-of-list marker {lo} in {k}={v}")
+                        raise Exception(
+                            f"Expected start-of-list marker {lo} in {k}={v}"
+                        )
                 if lc != "":
                     if v.endswith(lc):
                         v = v[0 : -len(lc)]
                     else:
-                        raise Exception(f"Expected end-of-list marker {lc} in {k}={v}")
+                        raise Exception(
+                            f"Expected end-of-list marker {lc} in {k}={v}"
+                        )
                 # TODO: escaping
                 v = [_getval(x) for x in v.split(internal_delimiter)]
             else:

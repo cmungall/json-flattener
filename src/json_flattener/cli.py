@@ -6,10 +6,18 @@ import os
 import click
 import yaml
 
-from json_flattener import GlobalConfig, KeyConfig, Serializer, flatten_to_csv, unflatten_from_csv
+from json_flattener import (
+    GlobalConfig,
+    KeyConfig,
+    Serializer,
+    flatten_to_csv,
+    unflatten_from_csv,
+)
 
 
-def _get_format(input: str, input_format: str = None, default_format: str = None) -> str:
+def _get_format(
+    input: str, input_format: str = None, default_format: str = None
+) -> str:
     if input_format is None:
         if input is None:
             if default_format is not None:
@@ -23,7 +31,9 @@ def _get_format(input: str, input_format: str = None, default_format: str = None
             if default_format is not None:
                 return default_format
             else:
-                raise Exception(f"Must pass format option OR use known file suffix: {input}")
+                raise Exception(
+                    f"Must pass format option OR use known file suffix: {input}"
+                )
     return input_format.lower()
 
 
@@ -90,7 +100,9 @@ input_format_option = click.option(
     "--input-format",
     help=f'The string denoting the input format, e.g. {",".join(FORMATS)}',
 )
-output_option = click.option("-o", "--output", help="Output file, e.g. a SSSOM tsv file.")
+output_option = click.option(
+    "-o", "--output", help="Output file, e.g. a SSSOM tsv file."
+)
 output_format_option = click.option(
     "-t",
     "--output-format",
