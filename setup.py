@@ -1,5 +1,6 @@
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 NAME = 'json_flattener'
 DESCRIPTION = 'Python library for denormalizing nested dicts or json objects to tables and back'
