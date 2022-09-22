@@ -29,9 +29,12 @@ def _json(obj) -> str:
 
 
 class FlattenerCase(unittest.TestCase):
+    """Test full functionality."""
     def _roundtrip_to_tsv(self, objs: List[Any], config=None, **params):
         """
-        Convert json objects to TSV and convert back
+        Convert json objects to TSV and convert back.
+
+        Performs a round trip through flatten followed by unflatten.
         """
         output = io.StringIO()
         flatten_to_csv(objs, output, config=config, **params)
@@ -52,7 +55,9 @@ class FlattenerCase(unittest.TestCase):
 
     def test_flattener(self):
         """
-        Tests core functionality
+        Tests core functionality.
+
+        Uses artificial dict example.
         """
 
         dict = {
@@ -71,7 +76,8 @@ class FlattenerCase(unittest.TestCase):
         logging.info("ORIG")
         logging.info(original_objs_json)
 
-        # test1: mixture of YAML serialization for some keys, and flattening for others
+        # test1: mixture of YAML serialization
+        # for some keys, and flattening for others
         kconfig = {
             "subject": KeyConfig(delete=True, serializers="yaml"),
             "object": KeyConfig(delete=True, flatten=True),
@@ -198,7 +204,8 @@ class FlattenerCase(unittest.TestCase):
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
-        # test6: as test 1 but with no []s around lists, and explicit list assignment
+        # test6: as test 1 but with no []s around lists,
+        # and explicit list assignment
         kconfig = {
             "subject": KeyConfig(delete=True, serializers="yaml"),
             "object": KeyConfig(delete=True, flatten=True),
