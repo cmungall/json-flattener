@@ -61,10 +61,16 @@ jfl flatten -C creator=flat -C books=multivalued -i examples/books1.yaml -o exam
 |S002|The Culture Series|[scifi]|Ian M Banks|Scotland|[Consider Phlebas\|Player of Games]||[5.99\|5.99]|[S002.1\|S002.2]|
 
 
-Convert back to JSON/YAML:
+To convert back to JSON/YAML we must first cache the generated mappings when we do the flatten with `-O`:
 
 ```bash
-jfl unflatten -C creator=flat -C books=multivalued -i examples/books1.tsv -o examples/books1.yaml
+jfl flatten -C creator=flat -C books=multivalued -i examples/books1.yaml -O examples/conf.yaml -o examples/books1-flattened.tsv
+```
+
+Then pass this as an argument
+
+```bash
+jfl unflatten -C creator=flat -C books=multivalued -i examples/books1.tsv -c examples/conf.yaml -o examples/books1.yaml
 ```
 
 
@@ -98,6 +104,30 @@ The primary use case is to go from a rich *normalized* data model (as python obj
 
 The target denormalized format is a list of rows / a data matrix, where each cell is either an atom or a list of atoms.
 
+
+## Usage from Python
+
+```python
+dict = {
+            "id": "A1",
+            "subject": {"id": "G1", "name": "gene1", "category": "gene"},
+            "object": {"id": "T1", "name": "term1", "category": "term"},
+            "publications": ["PMID1", "PMID2"],
+            "closure": [
+                {"id": "X1", "name": "x1"},
+                {"id": "X2", "name": "x2"},
+                {"id": "X3", "name": "x3"},
+            ],
+        }
+kconfig = {
+            "subject": KeyConfig(delete=True, serializers="yaml"),
+            "object": KeyConfig(delete=True, flatten=True),
+            "closure": KeyConfig(delete=True, is_list=True, flatten=True),
+        }
+config = GlobalConfig(key_configs=kconfig)
+flattened_objs = flatten(objs, config)
+```
+
 ## Method
 
  * Each top level key becomes a column
@@ -110,17 +140,6 @@ The target denormalized format is a list of rows / a data matrix, where each cel
      * e.g. if `books` is a list of book objects, and `name` is a key on book, then `books_name` is a list of names of each book
      * order is significant - the first element of `books_name` is matched to the first element of `books_price`, etc
  * Allow any key to be serialized as yaml/json/pickle if configured
-
-## Command line usage (TODO)
-
-## Usage from Python
-
-Documentation coming soon: see test folder for now
-
-
-## use within LinkML
-
-
 
 ## Comparison
 

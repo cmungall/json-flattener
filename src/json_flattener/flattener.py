@@ -23,9 +23,7 @@ OBJECT = Dict[KEYNAME, Any]
 
 @unique
 class Serializer(Enum):
-    """
-    Vocabulary of methods to use for serialization objects.
-    """
+    """Vocabulary of methods to use for serialization objects."""
 
     yaml = "yaml"
     json = "json"
@@ -40,11 +38,14 @@ class Serializer(Enum):
 
 @dataclass
 class ConfigEntity:
-    """
-    Base class for configurations
-    """
+    """Base class for configurations."""
 
     def as_dict(self) -> dict:
+        """
+        Serialize as a dictionary.
+
+        :return:
+        """
         def _convert(o: Any) -> Any:
             if isinstance(o, ConfigEntity):
                 return o.as_dict()
@@ -62,9 +63,7 @@ class ConfigEntity:
 
 @dataclass
 class KeyConfig(ConfigEntity):
-    """
-    Configures the flattening/unflattening behavior of an individual key/column
-    """
+    """Configures the behavior of an individual key/column."""
 
     delete: bool = False
     """for nested columns, if denormalized into other columns"""
@@ -82,11 +81,13 @@ class KeyConfig(ConfigEntity):
     """Not yet implemented"""
 
     distinct_values: Set[Any] = None
+    """All distinct values (unused)"""
 
     mappings: Dict[KEYNAME, KEYNAME] = None
     """maps normalized keys to denormalized"""
 
     typemap: Dict[KEYNAME, str] = None
+    """Mapping of types"""
 
     def __post_init__(self):
         if self.serializers is None:
@@ -104,7 +105,7 @@ class KeyConfig(ConfigEntity):
     @staticmethod
     def from_dict(**obj: Dict[str, Any]):
         """
-        Create object from a dictionary
+        Create object from a dictionary.
 
         :param obj:
         :return:
@@ -119,7 +120,7 @@ class KeyConfig(ConfigEntity):
 
 @dataclass
 class GlobalConfig(ConfigEntity):
-    """Configuration for a multi-key object"""
+    """Configuration for a multi-key object."""
 
     key_configs: Dict[KEYNAME, KeyConfig] = None
     sep: str = field(default_factory=lambda: "_")
@@ -139,7 +140,8 @@ class GlobalConfig(ConfigEntity):
     @staticmethod
     def from_dict(**obj: Dict[str, Any]):
         """
-        Create an object from a dictionary
+        Create an object from a dictionary.
+
         :param obj:
         :return:
         """
@@ -165,10 +167,11 @@ def flatten(
     objs: List[OBJECT], config: GlobalConfig = GlobalConfig()
 ) -> List[ROW]:
     """
-    Flattens a list of dicts into a denormalized representation according to a configuration
+    Flattens a list of dicts into a denormalized representation.
 
     :param objs: a list of dicts to be flattened
     :param config: mapping configuration
+    :raises NotImplementedError:
     :return: list of flattened dicts
     """
     sep = config.sep
@@ -195,7 +198,7 @@ def flatten(
                     elif serializer == Serializer.as_str:
                         dumpstr = str(obj[field_name])
                     else:
-                        raise Exception(f"unknown serializer: {serializer}")
+                        raise NotImplementedError(f"unknown serializer: {serializer}")
                     obj[injected_field] = dumpstr
         if config.melt_list_elements:
             if config.distinct_values is None:
@@ -260,6 +263,7 @@ def unflatten(
     :param objs: list of dicts to be unflattened
     :param config:
     :param params:
+    :raises NotImplementedError:
     :return:
     """
     sep = config.sep
@@ -284,7 +288,7 @@ def unflatten(
 
                             nu_obj = pickle.loads(serialized_v)
                         else:
-                            raise Exception(f"unknown serializer: {serializer}")
+                            raise NotImplementedError(f"unknown serializer: {serializer}")
                         obj[field] = nu_obj
                     del obj[injected_field]
                 else:
@@ -335,7 +339,7 @@ def unflatten(
 def flatten_to_csv(
     objs: List[OBJECT],
     outstream,
-    config: GlobalConfig = GlobalConfig(),
+    config: GlobalConfig = None,
     **params,
 ):
     """
@@ -346,6 +350,8 @@ def flatten_to_csv(
     :param params:
     :return:
     """
+    if config is None:
+        config = GlobalConfig()
     delimiter = config.csv_delimiter
     internal_delimiter = config.csv_inner_delimiter
     list_parens = config.csv_list_markers
@@ -406,7 +412,6 @@ def unflatten_from_csv(
     r = csv.DictReader(
         instream, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar="\\"
     )
-
     lo, lc = list_parens
 
     def _getval(x: str) -> Optional[Any]:

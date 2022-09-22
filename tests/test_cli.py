@@ -1,4 +1,5 @@
 import json
+import logging
 import tempfile
 import unittest
 from typing import Optional
@@ -35,7 +36,6 @@ class TestCommandLineInterface(unittest.TestCase):
         opts = ["-C", "creator=flat", "-C", "books=multivalued"]
         result = self.runner.invoke(main, [FLATTEN, "-i", INPUT] + opts)
         out = result.stdout
-        # self.assertIn("S001\tLord of the Rings\t[fantasy]", out)
         self.assertEqual(0, result.exit_code)
         out_file = tempfile.NamedTemporaryFile("w")
         conf_file = tempfile.NamedTemporaryFile("w")
@@ -66,7 +66,7 @@ class TestCommandLineInterface(unittest.TestCase):
         with open(out_file2.name) as file:
             objs = json.load(file)
             [obj1] = [obj for obj in objs if obj["id"] == "S001"]
-            #print(obj1)
+            # print(obj1)
             self.assertEqual(
                 {
                     "books": [
