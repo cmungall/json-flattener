@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import unittest
-from typing import List, Any
+from typing import Any, List
 
 import yaml
 
@@ -27,27 +27,27 @@ def _json(obj) -> str:
 
 
 class FlattenerCase(unittest.TestCase):
-
     def _roundtrip_to_tsv(self, objs: List[Any], config=None, **params):
         """
         Convert json objects to TSV and convert back
         """
         output = io.StringIO()
         flatten_to_csv(objs, output, config=config, **params)
-        # print(f'CONFIG:')
+        # logging.info(f'CONFIG:')
         config_dict = config.as_dict()
-        # print(_json(config_dict))
+        # logging.info(_json(config_dict))
         config2 = GlobalConfig.from_dict(**config_dict)
-        print(f"C2 = {config2}")
-        print("AS TSV")
-        print(output.getvalue())
+        logging.info(f"C2 = {config2}")
+        logging.info("AS TSV")
+        logging.info(output.getvalue())
         inp = io.StringIO(output.getvalue())
         objs2 = unflatten_from_csv(inp, config=config, **params)
         logging.info("BACK FROM TSV")
         logging.info(_json(objs2))
         logging.info("ORIG")
         logging.info(_json(objs))
-        assert objs == objs2
+        self.assertEqual(objs, objs2)
+
     def test_flattener(self):
         """
         Tests core functionality
@@ -66,8 +66,8 @@ class FlattenerCase(unittest.TestCase):
         }
         objs = [dict]
         original_objs_json = _json(objs)
-        print("ORIG")
-        print(original_objs_json)
+        logging.info("ORIG")
+        logging.info(original_objs_json)
 
         # test1: mixture of YAML serialization for some keys, and flattening for others
         kconfig = {
@@ -77,10 +77,10 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig)
         flattened_objs = flatten(objs, config)
-        print("ORIGINAL 1:")
-        print(_json(objs))
-        print("FLATTENED 1:")
-        print(_json(flattened_objs))
+        logging.info("ORIGINAL 1:")
+        logging.info(_json(objs))
+        logging.info("FLATTENED 1:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject_yaml", obj)
             self.assertIn("object_id", obj)
@@ -93,14 +93,13 @@ class FlattenerCase(unittest.TestCase):
             assert "closure" not in obj
         self._roundtrip_to_tsv(objs, config=config)
         roundtripped_objs = unflatten(flattened_objs, config)
-        print("ORIGINAL 1b:")
-        print(_json(objs))
-        print("ROUNDTRIP 1:")
+        logging.info("ORIGINAL 1b:")
+        logging.info(_json(objs))
+        logging.info("ROUNDTRIP 1:")
         roundtrip_json = _json(roundtripped_objs)
-        print(roundtrip_json)
-        assert roundtripped_objs == objs
-        assert roundtrip_json == original_objs_json
-
+        logging.info(roundtrip_json)
+        self.assertEqual(roundtripped_objs, objs)
+        self.assertEqual(roundtrip_json, original_objs_json)
         # test2: as above, but use json, and . as separator
         kconfig = {
             "subject": KeyConfig(delete=True, serializers=["json"]),
@@ -109,8 +108,8 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig, sep=".")
         flattened_objs = flatten(objs, config)
-        print("FLATTENED 2:")
-        print(_json(flattened_objs))
+        logging.info("FLATTENED 2:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject.json", obj)
             self.assertIn("object.id", obj)
@@ -122,10 +121,9 @@ class FlattenerCase(unittest.TestCase):
             assert "object" not in obj
             assert "closure" not in obj
         roundtripped_objs = unflatten(flattened_objs, config)
-        print("ROUNDTRIP 2:")
-        print(_json(roundtripped_objs))
-        assert roundtripped_objs == objs
-
+        logging.info("ROUNDTRIP 2:")
+        logging.info(_json(roundtripped_objs))
+        self.assertEqual(roundtripped_objs, objs)
         # test3: as above, but use pickle, and / as separator
         kconfig = {
             "subject": KeyConfig(delete=True, serializers="pickle"),
@@ -134,8 +132,8 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig, sep="/")
         flattened_objs = flatten(objs, config)
-        print("FLATTENED 3:")
-        print(flattened_objs)
+        logging.info("FLATTENED 3:")
+        logging.info(flattened_objs)
         for obj in flattened_objs:
             self.assertIn("subject/pickle", obj)
             self.assertIn("object/id", obj)
@@ -147,10 +145,9 @@ class FlattenerCase(unittest.TestCase):
             assert "object" not in obj
             assert "closure" not in obj
         roundtripped_objs = unflatten(flattened_objs, config)
-        print("ROUNDTRIP 3:")
-        print(_json(roundtripped_objs))
-        assert roundtripped_objs == objs
-
+        logging.info("ROUNDTRIP 3:")
+        logging.info(_json(roundtripped_objs))
+        self.assertEqual(roundtripped_objs, objs)
         # test 4: as test 1, but no do delete keys in transform
         kconfig = {
             "subject": KeyConfig(delete=False, serializers="yaml"),
@@ -159,10 +156,10 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig)
         flattened_objs = flatten(objs, config)
-        print("ORIGINAL 4:")
-        print(_json(objs))
-        print("FLATTENED 4:")
-        print(_json(flattened_objs))
+        logging.info("ORIGINAL 4:")
+        logging.info(_json(objs))
+        logging.info("FLATTENED 4:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject_yaml", obj)
             self.assertIn("object_id", obj)
@@ -175,12 +172,11 @@ class FlattenerCase(unittest.TestCase):
             self.assertIn("object", obj)
             self.assertIn("closure", obj)
         roundtripped_objs = unflatten(flattened_objs, config)
-        print("ROUNDTRIP 4:")
+        logging.info("ROUNDTRIP 4:")
         roundtrip_json = _json(roundtripped_objs)
-        print(roundtrip_json)
-        assert roundtripped_objs == objs
-        assert roundtrip_json == original_objs_json
-
+        logging.info(roundtrip_json)
+        self.assertEqual(roundtripped_objs, objs)
+        self.assertEqual(roundtrip_json, original_objs_json)
         # test 5: stringify (no reverse)
         kconfig = {
             "subject": KeyConfig(delete=True, serializers=[Serializer.as_str]),
@@ -189,10 +185,10 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig)
         flattened_objs = flatten(objs, config)
-        print("ORIGINAL 5:")
-        print(_json(objs))
-        print("FLATTENED 5:")
-        print(_json(flattened_objs))
+        logging.info("ORIGINAL 5:")
+        logging.info(_json(objs))
+        logging.info("FLATTENED 5:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject_as_str", obj)
             self.assertIn("object_as_str", obj)
@@ -200,7 +196,6 @@ class FlattenerCase(unittest.TestCase):
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
-
         # test6: as test 1 but with no []s around lists, and explicit list assignment
         kconfig = {
             "subject": KeyConfig(delete=True, serializers="yaml"),
@@ -213,10 +208,10 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig, csv_list_markers=("", ""))
         flattened_objs = flatten(objs, config)
-        print("ORIGINAL 1:")
-        print(_json(objs))
-        print("FLATTENED 1:")
-        print(_json(flattened_objs))
+        logging.info("ORIGINAL 1:")
+        logging.info(_json(objs))
+        logging.info("FLATTENED 1:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject_yaml", obj)
             self.assertIn("object_id", obj)
@@ -229,14 +224,13 @@ class FlattenerCase(unittest.TestCase):
             assert "closure" not in obj
         self._roundtrip_to_tsv(objs, config=config)
         roundtripped_objs = unflatten(flattened_objs, config)
-        print("ORIGINAL 1b:")
-        print(_json(objs))
-        print("ROUNDTRIP 1:")
+        logging.info("ORIGINAL 1b:")
+        logging.info(_json(objs))
+        logging.info("ROUNDTRIP 1:")
         roundtrip_json = _json(roundtripped_objs)
-        print(roundtrip_json)
-        assert roundtripped_objs == objs
-        assert roundtrip_json == original_objs_json
-
+        logging.info(roundtrip_json)
+        self.assertEqual(roundtripped_objs, objs)
+        self.assertEqual(roundtrip_json, original_objs_json)
         # test 7: melt (no reverse)
         kconfig = {
             "subject": KeyConfig(delete=True, serializers=[Serializer.as_str]),
@@ -246,10 +240,10 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig)
         flattened_objs = flatten(objs, config)
-        print("ORIGINAL 7:")
-        print(_json(objs))
-        print("FLATTENED 7:")
-        print(_json(flattened_objs))
+        logging.info("ORIGINAL 7:")
+        logging.info(_json(objs))
+        logging.info("FLATTENED 7:")
+        logging.info(_json(flattened_objs))
         for obj in flattened_objs:
             self.assertIn("subject_as_str", obj)
             self.assertIn("object_as_str", obj)
@@ -273,16 +267,14 @@ class FlattenerCase(unittest.TestCase):
         }
         key_config = {
             "my_list": KeyConfig(
-                delete=True, flatten=True, is_list=True,
-                serializers=[Serializer.json]
+                delete=True, flatten=True, is_list=True, serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
         self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
-                delete=True, flatten=False, is_list=True,
-                serializers=[Serializer.json]
+                delete=True, flatten=False, is_list=True, serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
@@ -324,14 +316,14 @@ class FlattenerCase(unittest.TestCase):
             del s["books"][i]["price"]
             objs = [s]
             original_objs_json = _json(objs)
-            print(original_objs_json)
+            logging.info(original_objs_json)
             kconfig = {"books": KeyConfig(delete=True, flatten=True, is_list=True)}
             config = GlobalConfig(key_configs=kconfig)
             flattened_objs = flatten(objs, config)
-            print(f"ORIGINAL n {i}:")
-            print(_json(objs))
-            print(f"FLATTENED n {i}:")
-            print(_json(flattened_objs))
+            logging.info(f"ORIGINAL n {i}:")
+            logging.info(_json(objs))
+            logging.info(f"FLATTENED n {i}:")
+            logging.info(_json(flattened_objs))
             for obj in flattened_objs:
                 self.assertIn("id", obj)
                 self.assertIn("name", obj)
@@ -340,11 +332,13 @@ class FlattenerCase(unittest.TestCase):
                 self.assertIn("books_name", obj)
                 # self.assertIn('books_price', obj)
             roundtripped_objs = unflatten(flattened_objs, config)
-            print(f"ROUNDTRIP {i}:")
+            logging.info(f"ROUNDTRIP {i}:")
             roundtrip_json = _json(roundtripped_objs)
-            print(roundtrip_json)
-            assert roundtripped_objs == objs
-            assert roundtrip_json == original_objs_json
+            logging.info(roundtrip_json)
+            self.assertEqual(roundtripped_objs, objs)
+
+            self.assertEqual(roundtrip_json, original_objs_json)
+
             self._roundtrip_to_tsv(objs, config=config)
 
     def test_books(self):
@@ -360,14 +354,14 @@ class FlattenerCase(unittest.TestCase):
         }
         config = GlobalConfig(key_configs=kconfig)
         flattened_objs = flatten(objs, config)
-        # print(_json(config))
-        print("BOOKS, flattened:")
-        print(_json(flattened_objs))
+        # logging.info(_json(config))
+        logging.info("BOOKS, flattened:")
+        logging.info(_json(flattened_objs))
         # config.key_configs['books'].mappings = None
         roundtripped_objs = unflatten(flattened_objs, config)
         roundtrip_json = _json(roundtripped_objs)
-        print("BOOKS, roundtripped:")
-        print(roundtrip_json)
+        logging.info("BOOKS, roundtripped:")
+        logging.info(roundtrip_json)
         self._roundtrip_to_tsv(objs, config=config)
 
 
