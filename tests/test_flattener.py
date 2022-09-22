@@ -30,7 +30,7 @@ def _json(obj) -> str:
 
 class FlattenerCase(unittest.TestCase):
     """Test full functionality."""
-    def _roundtrip_to_tsv(self, objs: List[Any], config=None, **params):
+    def _roundtrip_to_tsv(self, objs: List[Any], config: GlobalConfig = None, **params):
         """
         Convert json objects to TSV and convert back.
 
@@ -59,7 +59,6 @@ class FlattenerCase(unittest.TestCase):
 
         Uses artificial dict example.
         """
-
         dict = {
             "id": "A1",
             "subject": {"id": "G1", "name": "gene1", "category": "gene"},
@@ -207,7 +206,7 @@ class FlattenerCase(unittest.TestCase):
         # test6: as test 1 but with no []s around lists,
         # and explicit list assignment
         kconfig = {
-            "subject": KeyConfig(delete=True, serializers="yaml"),
+            "subject": KeyConfig(delete=True, serializers=["yaml"]),
             "object": KeyConfig(delete=True, flatten=True),
             "closure": KeyConfig(delete=True, is_list=True, flatten=True),
             "publications": KeyConfig(is_list=True),
@@ -244,7 +243,8 @@ class FlattenerCase(unittest.TestCase):
         kconfig = {
             "subject": KeyConfig(delete=True, serializers=[Serializer.as_str]),
             "object": KeyConfig(delete=True, serializers=[Serializer.as_str]),
-            "closure": KeyConfig(delete=True, is_list=True, flatten=True, melt_list_elements=True),
+            "closure": KeyConfig(delete=True, is_list=True, flatten=True,
+                                 melt_list_elements=True),
             "publications": KeyConfig(delete=True, melt_list_elements=True),
         }
         config = GlobalConfig(key_configs=kconfig)
@@ -264,9 +264,7 @@ class FlattenerCase(unittest.TestCase):
             assert "object" not in obj
 
     def test_lists(self):
-        """
-        Tests list behavior
-        """
+        """Tests list behavior."""
         obj = {
             "id": "X1",
             "my_list": [
@@ -276,28 +274,32 @@ class FlattenerCase(unittest.TestCase):
         }
         key_config = {
             "my_list": KeyConfig(
-                delete=True, flatten=True, is_list=True, serializers=[Serializer.json]
+                delete=True, flatten=True, is_list=True,
+                serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
         self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
-                delete=True, flatten=False, is_list=True, serializers=[Serializer.json]
+                delete=True, flatten=False, is_list=True,
+                serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
         self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
-                delete=False, flatten=True, is_list=True, serializers=[Serializer.json]
+                delete=False, flatten=True, is_list=True,
+                serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
         self._roundtrip_to_tsv([obj], global_config)
         key_config = {
             "my_list": KeyConfig(
-                delete=False, flatten=False, is_list=True, serializers=[Serializer.json]
+                delete=False, flatten=False, is_list=True,
+                serializers=[Serializer.json]
             )
         }
         global_config = GlobalConfig(key_configs=key_config)
@@ -305,7 +307,9 @@ class FlattenerCase(unittest.TestCase):
 
     def test_nulls(self):
         """
-        Tests behavior with python None
+        Tests behavior with python "None".
+
+        Also checks 'delete' in KeyConfig.
         """
 
         dict = {
@@ -326,7 +330,8 @@ class FlattenerCase(unittest.TestCase):
             objs = [s]
             original_objs_json = _json(objs)
             logging.info(original_objs_json)
-            kconfig = {"books": KeyConfig(delete=True, flatten=True, is_list=True)}
+            kconfig = {"books": KeyConfig(delete=True,
+                                          flatten=True, is_list=True)}
             config = GlobalConfig(key_configs=kconfig)
             flattened_objs = flatten(objs, config)
             logging.info(f"ORIGINAL n {i}:")
@@ -352,7 +357,9 @@ class FlattenerCase(unittest.TestCase):
 
     def test_books(self):
         """
-        Tests core functionality
+        Tests core functionality.
+
+        Uses books example
         """
         with open(INPUT) as stream:
             shop = yaml.safe_load(stream)
