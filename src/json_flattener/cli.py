@@ -1,29 +1,29 @@
-"Command line interface."
+"""Command line interface."""
 import json
 import logging
 import os
+import sys
+from typing import List, TextIO, Union
 
 import click
 import yaml
 
-from json_flattener import (
-    GlobalConfig,
-    KeyConfig,
-    Serializer,
-    flatten_to_csv,
-    unflatten_from_csv,
-)
+from json_flattener import GlobalConfig, KeyConfig, Serializer, flatten_to_csv, unflatten_from_csv
 
 
 def _get_format(
-    input: str, input_format: str = None, default_format: str = None
+    input: str,
+    input_format: Union[str, TextIO] = None,
+    default_format: str = None,
 ) -> str:
+    if input and not isinstance(input, str):
+        input = input.name
     if input_format is None:
         if input is None:
             if default_format is not None:
                 return default_format
             else:
-                raise Exception(f"Must pass input file or default format")
+                raise Exception("Must pass file or default format")
         _, ext = os.path.splitext(input)
         if ext is not None:
             input_format = ext.replace(".", "")
@@ -32,7 +32,7 @@ def _get_format(
                 return default_format
             else:
                 raise Exception(
-                    f"Must pass format option OR use known file suffix: {input}"
+                    f"Must pass format  OR use known suffix: {input}"
                 )
     return input_format.lower()
 
@@ -43,11 +43,19 @@ def _is_xsv(fmt: str) -> bool:
 
 def _get_config(
     serializer: str = "json",
-    serialized_keys=[],
-    multivalued_keys=[],
-    flatten_keys=[],
-    config_keys=[],
+    serialized_keys: List[str] = None,
+    multivalued_keys: List[str] = None,
+    flatten_keys: List[str] = None,
+    config_keys: List[str] = None,
 ) -> GlobalConfig:
+    if not serialized_keys:
+        serialized_keys = []
+    if not multivalued_keys:
+        multivalued_keys = []
+    if not flatten_keys:
+        flatten_keys = []
+    if not config_keys:
+        config_keys = []
     config = GlobalConfig()
     kcs = config.key_configs
     for k in serialized_keys:
@@ -101,7 +109,11 @@ input_format_option = click.option(
     help=f'The string denoting the input format, e.g. {",".join(FORMATS)}',
 )
 output_option = click.option(
-    "-o", "--output", help="Output file, e.g. a SSSOM tsv file."
+    "-o",
+    "--output",
+    type=click.File(mode="w"),
+    default=sys.stdout,
+    help="Output file, e.g TSV or JSON.",
 )
 output_format_option = click.option(
     "-t",
@@ -209,7 +221,7 @@ def flatten(
         jfl flatten --input my.yaml --output my.tsv
     """
     input_format = _get_format(input, input_format)
-    output_format = _get_format(output, output_format)
+    output_format = _get_format(output, output_format, default_format="tsv")
     with open(input) as stream:
         if input_format == "yaml":
             obj = yaml.safe_load(stream)
@@ -238,8 +250,7 @@ def flatten(
         config_keys=config_key,
     )
     logging.debug(f"CONFIG={config}")
-    with open(output, "w") as stream:
-        flatten_to_csv(objs, stream, config=config)
+    flatten_to_csv(objs, output, config=config)
     if save_config is not None:
         with open(save_config, "w") as stream:
             yaml.dump(config.as_dict(), stream)
@@ -283,8 +294,9 @@ def unflatten(
         serialized_keys=serialized_keys,
         multivalued_keys=multivalued_keys,
         flatten_keys=flatten_keys,
-        config_keys=config_key,
+        config_keys=list(config_key),
     )
+    logging.info(f"Config={config}")
     if load_config is not None:
         with open(load_config) as stream:
             config = GlobalConfig.from_dict(**yaml.safe_load(stream))
@@ -295,19 +307,18 @@ def unflatten(
         elif input_format == "csv":
             sep = ","
         else:
-            logging.warning(f"Guessing separator: {sep}")
             sep = "\t"
+            logging.warning(f"Guessing separator: {sep}")
         objs = unflatten_from_csv(stream, config)
     logging.debug(f"INPUT={objs}")
     if key is not None:
         obj = {key: objs}
     else:
         obj = objs
-    with open(output, "w") as stream:
-        if output_format == "yaml":
-            yaml.safe_dump(obj, stream=stream)
-        else:
-            json.dump(obj, stream)
+    if output_format == "yaml":
+        yaml.safe_dump(obj, stream=output)
+    else:
+        json.dump(obj, output, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":

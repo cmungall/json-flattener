@@ -3,7 +3,6 @@
 import io
 import json
 import logging
-import os
 import unittest
 from typing import Any, List
 
@@ -18,10 +17,7 @@ from json_flattener import (
     unflatten,
     unflatten_from_csv,
 )
-
-ROOT = os.path.abspath(os.path.dirname(__file__))
-INPUT_DIR = os.path.join(ROOT, "inputs")
-INPUT = os.path.join(INPUT_DIR, "books1.yaml")
+from tests import INPUT
 
 
 def _json(obj) -> str:
@@ -368,7 +364,7 @@ class FlattenerCase(unittest.TestCase):
 
             self._roundtrip_to_tsv(objs, config=config)
 
-    def test_books(self):
+    def test_roundtrip_from_file(self):
         """
         Tests core functionality.
 
@@ -387,7 +383,10 @@ class FlattenerCase(unittest.TestCase):
         logging.info("BOOKS, flattened:")
         logging.info(_json(flattened_objs))
         # config.key_configs['books'].mappings = None
+        print(config)
         roundtripped_objs = unflatten(flattened_objs, config)
+        # for o in roundtripped_objs:
+        #    print(o)
         roundtrip_json = _json(roundtripped_objs)
         logging.info("BOOKS, roundtripped:")
         logging.info(roundtrip_json)

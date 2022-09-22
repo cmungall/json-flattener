@@ -22,7 +22,7 @@ sphinx-autodoc-typehints = "^1.19.2"
 sphinx-click = "^4.3.0"
 
 [tool.poetry.scripts]
-json-flattener = "json-flattener.cli:main"
+jfl = "json_flattener.cli:main"
 
 [tool.poetry.extras]
 docs = [

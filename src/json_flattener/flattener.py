@@ -67,7 +67,7 @@ class KeyConfig(ConfigEntity):
     """
 
     delete: bool = False
-    """delete this column"""
+    """for nested columns, if denormalized into other columns"""
 
     serializers: List[Serializer] = None
     """all serializers to apply"""
