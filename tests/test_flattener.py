@@ -1,3 +1,5 @@
+"""Tests all public functions."""
+
 import io
 import json
 import logging
