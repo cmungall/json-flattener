@@ -1,3 +1,4 @@
+"""JSON Flattener."""
 from json_flattener.flattener import (
     GlobalConfig,
     KeyConfig,
