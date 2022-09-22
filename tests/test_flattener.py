@@ -82,12 +82,12 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 1:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject_yaml" in obj
-            assert "object_id" in obj
-            assert "object_name" in obj
-            assert "object_category" in obj
-            assert "closure_id" in obj
-            assert "closure_name" in obj
+            self.assertIn("subject_yaml", obj)
+            self.assertIn("object_id", obj)
+            self.assertIn("object_name", obj)
+            self.assertIn("object_category", obj)
+            self.assertIn("closure_id", obj)
+            self.assertIn("closure_name", obj)
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
@@ -112,12 +112,12 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 2:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject.json" in obj
-            assert "object.id" in obj
-            assert "object.name" in obj
-            assert "object.category" in obj
-            assert "closure.id" in obj
-            assert "closure.name" in obj
+            self.assertIn("subject.json", obj)
+            self.assertIn("object.id", obj)
+            self.assertIn("object.name", obj)
+            self.assertIn("object.category", obj)
+            self.assertIn("closure.id", obj)
+            self.assertIn("closure.name", obj)
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
@@ -137,12 +137,12 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 3:")
         print(flattened_objs)
         for obj in flattened_objs:
-            assert "subject/pickle" in obj
-            assert "object/id" in obj
-            assert "object/name" in obj
-            assert "object/category" in obj
-            assert "closure/id" in obj
-            assert "closure/name" in obj
+            self.assertIn("subject/pickle", obj)
+            self.assertIn("object/id", obj)
+            self.assertIn("object/name", obj)
+            self.assertIn("object/category", obj)
+            self.assertIn("closure/id", obj)
+            self.assertIn("closure/name", obj)
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
@@ -164,16 +164,16 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 4:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject_yaml" in obj
-            assert "object_id" in obj
-            assert "object_name" in obj
-            assert "object_category" in obj
-            assert "closure_id" in obj
-            assert "closure_name" in obj
+            self.assertIn("subject_yaml", obj)
+            self.assertIn("object_id", obj)
+            self.assertIn("object_name", obj)
+            self.assertIn("object_category", obj)
+            self.assertIn("closure_id", obj)
+            self.assertIn("closure_name", obj)
             # we do NOT delete the originals
-            assert "subject" in obj
-            assert "object" in obj
-            assert "closure" in obj
+            self.assertIn("subject", obj)
+            self.assertIn("object", obj)
+            self.assertIn("closure", obj)
         roundtripped_objs = unflatten(flattened_objs, config)
         print("ROUNDTRIP 4:")
         roundtrip_json = _json(roundtripped_objs)
@@ -194,9 +194,9 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 5:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject_as_str" in obj
-            assert "object_as_str" in obj
-            assert "closure_as_str" in obj
+            self.assertIn("subject_as_str", obj)
+            self.assertIn("object_as_str", obj)
+            self.assertIn("closure_as_str", obj)
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
@@ -218,12 +218,12 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 1:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject_yaml" in obj
-            assert "object_id" in obj
-            assert "object_name" in obj
-            assert "object_category" in obj
-            assert "closure_id" in obj
-            assert "closure_name" in obj
+            self.assertIn("subject_yaml", obj)
+            self.assertIn("object_id", obj)
+            self.assertIn("object_name", obj)
+            self.assertIn("object_category", obj)
+            self.assertIn("closure_id", obj)
+            self.assertIn("closure_name", obj)
             assert "subject" not in obj
             assert "object" not in obj
             assert "closure" not in obj
@@ -251,11 +251,11 @@ class FlattenerCase(unittest.TestCase):
         print("FLATTENED 7:")
         print(_json(flattened_objs))
         for obj in flattened_objs:
-            assert "subject_as_str" in obj
-            assert "object_as_str" in obj
-            assert "PMID1" in obj
-            assert "x1" in obj
-            assert "X1" in obj
+            self.assertIn("subject_as_str", obj)
+            self.assertIn("object_as_str", obj)
+            self.assertIn("PMID1", obj)
+            self.assertIn("x1", obj)
+            self.assertIn("X1", obj)
             assert "publications" not in obj
             assert "subject" not in obj
             assert "object" not in obj
@@ -333,12 +333,12 @@ class FlattenerCase(unittest.TestCase):
             print(f"FLATTENED n {i}:")
             print(_json(flattened_objs))
             for obj in flattened_objs:
-                assert "id" in obj
-                assert "name" in obj
+                self.assertIn("id", obj)
+                self.assertIn("name", obj)
                 assert "books" not in obj
-                assert "books_id" in obj
-                assert "books_name" in obj
-                # assert 'books_price' in obj
+                self.assertIn("books_id", obj)
+                self.assertIn("books_name", obj)
+                # self.assertIn('books_price', obj)
             roundtripped_objs = unflatten(flattened_objs, config)
             print(f"ROUNDTRIP {i}:")
             roundtrip_json = _json(roundtripped_objs)
