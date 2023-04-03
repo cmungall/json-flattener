@@ -21,6 +21,14 @@ ROW = Dict[KEYNAME, CELL_VALUE]
 OBJECT = Dict[KEYNAME, Any]
 
 
+class MissingColumnError(ValueError):
+    """Exception raised when a column is missing from a row."""
+
+    def __init__(self, row: ROW, value: Any):
+        """Initialize exception."""
+        super().__init__(f"Value {value} has no column row {row}")
+
+
 @unique
 class Serializer(Enum):
     """Vocabulary of methods to use for serialization objects."""
@@ -441,6 +449,8 @@ def unflatten_from_csv(
     for row in r:
         nu_obj = {}
         for k, v in row.items():
+            if k is None:
+                raise MissingColumnError(row, v)
             key_config = config.key_configs.get(k, None)
             v = v.replace("\\n", "\n").replace("\\t", "\t")
             # lists are demarcated by list markers
