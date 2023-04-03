@@ -4,6 +4,7 @@ import io
 import json
 import logging
 import unittest
+from pathlib import Path
 from typing import Any, List
 
 import yaml
@@ -17,7 +18,8 @@ from json_flattener import (
     unflatten,
     unflatten_from_csv,
 )
-from tests import INPUT
+from json_flattener.flattener import MissingColumnError
+from tests import INPUT, INPUT_DIR
 
 
 def _json(obj) -> str:
@@ -391,6 +393,14 @@ class FlattenerCase(unittest.TestCase):
         logging.info("BOOKS, roundtripped:")
         logging.info(roundtrip_json)
         self._roundtrip_to_tsv(objs, config=config)
+
+    def test_badly_formatted(self):
+        """
+        Tests graceful failure on badly formatted TSV input.
+        """
+        with open(str(Path(INPUT_DIR) / "badly-formatted.tsv")) as stream:
+            with self.assertRaises(MissingColumnError) as _e:
+                _objs = unflatten_from_csv(stream)
 
 
 if __name__ == "__main__":
