@@ -1,0 +1,21 @@
+{
+  "template": "https://github.com/hrshdhgd/sphintoxetry-cookiecutter",
+  "commit": "d19528901d9b916bed7225c7139cbfd7ba725e91",
+  "context": {
+    "cookiecutter": {
+      "project_name": "json-flattener",
+      "__project_slug": "json_flattener",
+      "project_description": "Python library for denormalizing nested dicts or json objects to tables and back",
+      "file_name": "main",
+      "greeting_recipient": "World",
+      "full_name": "Chris Mungall",
+      "email": "cjmungall@lbl.gov",
+      "__author": "Chris Mungall <cjmungall@lbl.gov>",
+      "license": "BSD-3",
+      "github_token_for_doc_deployment": "GH_TOKEN",
+      "github_token_for_pypi_deployment": "PYPI_TOKEN",
+      "_template": "https://github.com/hrshdhgd/sphintoxetry-cookiecutter"
+    }
+  },
+  "directory": null
+}

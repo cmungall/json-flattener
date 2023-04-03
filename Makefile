@@ -1,4 +1,4 @@
-export PYTHONPATH=.
+RUN = poetry run
 
 test:
-	pytest
+	$(RUN) python -m unittest discover

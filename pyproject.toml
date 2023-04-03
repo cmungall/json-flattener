@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "json-flattener"
+version = "0.1.0"
+description = "json-flattener"
+authors = ["Chris Mungall <cjmungall@lbl.gov>"]
+license = "BSD-3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "*"
+PyYAML = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+Sphinx = "^5.1.1"
+sphinx-rtd-theme = "^1.0.0"
+sphinx-autodoc-typehints = "^1.19.2"
+sphinx-click = "^4.3.0"
+setuptools = "^64.0.1"
+tox = "^3.25.1"
+importlib = "^1.0.4"
+
+[tool.poetry.scripts]
+jfl = "json_flattener.cli:main"
+
+[tool.poetry.extras]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints",
+    "sphinx-click",
+    ]
+
+[tool.black]
+line-length = 80
+target-version = ["py38", "py39", "py310"]
+
+[tool.autoflake]
+check = true
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+reverse_relative = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
