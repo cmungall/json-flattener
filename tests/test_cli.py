@@ -2,12 +2,13 @@ import json
 import logging
 import tempfile
 import unittest
+from pathlib import Path
 from typing import Optional
 
 from click.testing import CliRunner
 
 from json_flattener.cli import main
-from tests import INPUT
+from tests import INPUT, OUTPUT_DIR
 
 FLATTEN = "flatten"
 UNFLATTEN = "unflatten"
@@ -21,6 +22,8 @@ class TestCommandLineInterface(unittest.TestCase):
     def setUp(self) -> None:
         runner = CliRunner(mix_stderr=False)
         self.runner = runner
+        outdir = Path(OUTPUT_DIR)
+        outdir.mkdir(parents=True, exist_ok=True)
 
     def test_main_help(self):
         """Tests parent command."""
@@ -37,33 +40,33 @@ class TestCommandLineInterface(unittest.TestCase):
         result = self.runner.invoke(main, [FLATTEN, "-i", INPUT] + opts)
         out = result.stdout
         self.assertEqual(0, result.exit_code)
-        out_file = tempfile.NamedTemporaryFile("w")
-        conf_file = tempfile.NamedTemporaryFile("w")
+        out_file = str(Path(OUTPUT_DIR) / "out.csv")
+        conf_file = str(Path(OUTPUT_DIR) / "conf.json")
         result = self.runner.invoke(
             main,
-            [FLATTEN, "-i", INPUT, "-o", out_file.name, "-O", conf_file.name]
+            [FLATTEN, "-i", INPUT, "-o", out_file, "-O", conf_file]
             + opts,
         )
-        with open(out_file.name) as file:
+        with open(out_file) as file:
             out = "".join(file.readlines())
             # print(out)
             self.assertIn("S001\tLord of the Rings\t[fantasy]", out)
-        out_file2 = tempfile.NamedTemporaryFile("w")
+        out_file2 = str(Path(OUTPUT_DIR) / "out2.csv")
         result = self.runner.invoke(
             main,
             [
                 UNFLATTEN,
                 "-i",
-                out_file.name,
+                out_file,
                 "-o",
-                out_file2.name,
+                out_file2,
                 "-c",
-                conf_file.name,
+                conf_file,
             ]
             + opts,
         )
         self.assertEqual(0, result.exit_code)
-        with open(out_file2.name) as file:
+        with open(out_file2) as file:
             objs = json.load(file)
             [obj1] = [obj for obj in objs if obj["id"] == "S001"]
             # print(obj1)
