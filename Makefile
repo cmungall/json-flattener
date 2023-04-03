@@ -1,4 +1,4 @@
 RUN = poetry run
 
 test:
-	$(RUN) pytest
+	$(RUN) python -m unittest discover
