@@ -10,6 +10,7 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum, unique
 from typing import Any, Dict, List, Optional, Set, TextIO, Tuple, Union
+import io
 
 import yaml
 
@@ -410,13 +411,23 @@ def unflatten_from_csv(
     :param params:
     :return:
     """
+    if isinstance(source, str):
+        with open(source, 'r') as instream:
+            result = _unflatten_from_csv(instream, config, **params)
+    elif isinstance(source, io.IOBase):
+        # User has passed us an open file, they are responsible for closing it
+        result = _unflatten_from_csv(source, config, **params)
+    else:
+        raise ValueError(f"source must be a path (as a string) or an open file object. got {source}")
+    return result
+
+
+def _unflatten_from_csv(
+    instream: TextIO, config: GlobalConfig = GlobalConfig(), **params
+) -> List[OBJECT]:
     delimiter = config.csv_delimiter
     internal_delimiter = config.csv_inner_delimiter
     list_parens = config.csv_list_markers
-    if isinstance(source, str):
-        instream = open(source)
-    else:
-        instream = source
     r = csv.DictReader(
         instream, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar="\\"
     )
